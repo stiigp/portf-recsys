@@ -1,0 +1,52 @@
+version: '3.0'
+
+services:
+  es01:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.10.2
+    container_name: es01
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+    ports:
+      - "9200:9200"
+      - "9302:9302"
+    volumes:
+      - es-data-es01:/usr/share/elasticsearch/data
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana-oss:7.10.2
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://es01:9200
+    depends_on:
+      - es01
+    ports:
+      - "5601:5601"
+  
+  api:
+    build: ./api
+    container_name: fastapi-app
+    depends_on:
+      - es01
+      - db
+    environment:
+      - ELASTICSEARCH_HOST=http://es01:9200
+    ports:
+      - "8000:8000"
+  
+  db:
+    image: postgres:16
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=meuuser
+      - POSTGRES_PASSWORD=minhasenha
+      - POSTGRES_DB=meubanco
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+
+volumes:
+  es-data-es01:
+  pgdata:
