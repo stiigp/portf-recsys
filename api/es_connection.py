@@ -1,3 +1,7 @@
 from elasticsearch import Elasticsearch
 
-es = Elasticsearch("http://es01:9200")
+ELASTICSEARCH_HOST = "http://es01:9200"
+
+es = Elasticsearch(
+    ELASTICSEARCH_HOST
+)
