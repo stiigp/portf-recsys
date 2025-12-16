@@ -1,7 +1,5 @@
 from fastapi import FastAPI
-from elasticsearch import Elasticsearch
-
-es = Elasticsearch("http://es01:9200")
+from es_connection import es
 
 app = FastAPI()
 
