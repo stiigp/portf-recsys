@@ -1,7 +1,7 @@
 import pandas as pd
 import json
 
-OUTPUT_FILE = 'movies_with_tags.ndjson'
+OUTPUT_FILE = 'treating_data/movies_with_tags.ndjson'
 INDEX_NAME = 'movies'
 
 def read_movies_and_tags():
@@ -13,12 +13,18 @@ def convert_row_to_dict(row):
 def put_tags_into_row(movie_id, row, tags):
     row['tags'] = list(set([tag for tag in tags.loc[tags['movieId'] == movie_id]['tag']]))
 
+def transform_genres_into_list_in_row(row):
+    row['genres'] = row['genres'].split("|")
+
 def write_action_line_in_output_file(outfile, movie_id):
     action = { "index": { "_index": INDEX_NAME, "_id": movie_id} }
     outfile.write(json.dumps(action) + '\n')
 
 def write_item_line_with_tags_in_output_file(outfile, movie_id, row, tags):
     put_tags_into_row(movie_id, row, tags)
+
+    transform_genres_into_list_in_row(row)
+
     row_dict_version = convert_row_to_dict(row)
 
     outfile.write(json.dumps(row_dict_version) + '\n')
