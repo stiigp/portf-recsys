@@ -29,7 +29,7 @@ def filtering_ratings_based_on_items(items: pd.DataFrame, ratings: pd.DataFrame)
     # print(ratings[ratings['movieId'].isin(items["movieId"])])
     rt_cln = ratings[ratings['movieId'].isin(items["movieId"])]
 
-    rt_cln.drop('timestamp', axis=1, inplace=True)
+    del rt_cln['timestamp']
 
     return rt_cln
 

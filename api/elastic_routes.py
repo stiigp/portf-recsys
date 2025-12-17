@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, status
-from treating_data.dump_movies_into_es import reset_movies_index
+from elastic_module.dump_movies_into_es import reset_movies_index
 
 elastic_router = APIRouter()
 

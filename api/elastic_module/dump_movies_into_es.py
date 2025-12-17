@@ -39,7 +39,7 @@ def create_movies_index_if_it_doesnt_exist():
     return False
 
 def dump_movies_into_index():
-    with open("treating_data/movies_with_tags.ndjson", "rb") as f:
+    with open("elastic_module/movies_with_tags.ndjson", "rb") as f:
         data = f.read()
 
     try:

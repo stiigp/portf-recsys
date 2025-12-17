@@ -36,11 +36,11 @@ services:
     image: postgres:16
     container_name: postgres
     environment:
-      - POSTGRES_USER=meuuser
-      - POSTGRES_PASSWORD=minhasenha
-      - POSTGRES_DB=meubanco
+      - POSTGRES_USER=stiigp
+      - POSTGRES_PASSWORD=recsys
+      - POSTGRES_DB=recsys
     ports:
-      - "5432:5432"
+      - "5434:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
 

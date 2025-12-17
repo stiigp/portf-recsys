@@ -2,3 +2,7 @@ fastapi
 uvicorn[standard]
 elasticsearch==7.13
 requests
+sqlalchemy
+psycopg2-binary
+pandas
+numpy<2
