@@ -1,6 +1,7 @@
 from deps import get_db_context
 from postgres_module.entities.rating import Base, Rating
 from postgres_module.db import engine
+
 import pandas as pd
 
 async def dump_ratings_on_startup():
