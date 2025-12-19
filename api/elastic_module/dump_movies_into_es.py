@@ -1,4 +1,4 @@
-from es_connection import es
+from deps import es
 import requests
 import asyncio
 
