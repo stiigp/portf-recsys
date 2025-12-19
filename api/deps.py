@@ -1,5 +1,4 @@
 from postgres_module.db import SessionLocal
-from sqlalchemy.orm import Session
 from contextlib import contextmanager
 from elasticsearch import Elasticsearch
 
