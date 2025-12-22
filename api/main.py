@@ -13,6 +13,7 @@ MOVIES_INDEX_NAME = "movies"
 async def lifespan(app: FastAPI):
     await dump_movies_on_startup()
     await dump_ratings_on_startup()
+    await cf.train_and_dump_model_on_startup()
     
     yield
     # aqui fica o código pro shutdown da API

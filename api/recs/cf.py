@@ -71,7 +71,10 @@ def offline_processing():
     with open("models/als_model.pkl", "wb") as f:
         pickle.dump(trained_model, f)
 
-if __name__ == "__main__":
+async def train_and_dump_model_on_startup():
     if not os.path.exists("models/als_model.pkl"):
         offline_processing()
         print("trained and dumped model")
+
+if __name__ == "__main__":
+    train_and_dump_model_on_startup()
