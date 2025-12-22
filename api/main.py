@@ -3,17 +3,20 @@ from contextlib import asynccontextmanager
 from elastic_module.dump_movies_into_es import dump_movies_on_startup
 from postgres_module.dump_ratings_into_pg import dump_ratings_on_startup
 from recs.cbf import get_similar_movies_cbf
+from deps import es
 import recs.cf as cf
 import os
 
-BASE_URL = "http://es01:9200"
 MOVIES_INDEX_NAME = "movies"
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await dump_movies_on_startup()
     await dump_ratings_on_startup()
-    await cf.train_and_dump_model_on_startup()
+    cf.train_and_dump_model_on_startup()
+    app.state.als_model = cf.load_model_on_startup()
+    app.state.movie_ids = cf.load_movie_ids_on_startup()
+    app.state.movie_mapping = cf.load_movie_mapping_on_startup()
     
     yield
     # aqui fica o código pro shutdown da API
@@ -30,11 +33,33 @@ def cbf(movie_id: int):
 
     return similar_movies
 
-@app.get("/cf")
-def get_all_ratings():
-    ratings = cf.get_ratings()
+@app.get("/cf/{movie_id}")
+def get_all_ratings(movie_id: int):
+    model = app.state.als_model
+    mapping = app.state.movie_mapping
+    movie_ids = app.state.movie_ids
 
-    return ratings.describe()
+    model_id = mapping[movie_id]
+
+    ids, scores = model.similar_items(model_id, N=11)
+
+    recs = []
+
+    for item_id, score in zip(ids, scores):
+        es_id = movie_ids[item_id]
+        try:
+            doc = es.get(index=MOVIES_INDEX_NAME, id=es_id)
+            title = doc["_source"]["title"]
+        except Exception as e:
+            print("movie not found in ES")
+            continue
+
+        recs.append(
+            {"movie_id": int(es_id), "title": title, "score": float(score)}
+        )
+
+    return {"recommendations": recs}
+
 
 @app.get("/cf/check-model")
 def train_model():
