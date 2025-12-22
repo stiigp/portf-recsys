@@ -25,12 +25,16 @@ services:
     build: ./api
     container_name: fastapi-app
     depends_on:
-      - es01
-      - db
+      es01:
+        condition: service_started
+      db:
+        condition: service_healthy
     environment:
       - ELASTICSEARCH_HOST=http://es01:9200
     ports:
       - "8000:8000"
+    volumes:
+      - models:/api/models
   
   db:
     image: postgres:16
@@ -43,8 +47,13 @@ services:
       - "5434:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stiigp -d recsys || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
 volumes:
   es-data-es01:
   pgdata:
+  models:
