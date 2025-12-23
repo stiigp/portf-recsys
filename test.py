@@ -1,5 +1,3 @@
-import pandas as pd
+lista = [{"vish": 1}, {'vish': 2}]
 
-animes = pd.read_csv('dataset/anime_cleaned.csv')
 
-print(animes.columns)
