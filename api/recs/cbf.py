@@ -8,7 +8,7 @@ def get_similar_movies_cbf(movie_id: int):
                 "query": {
                     "more_like_this": {
                         "fields": ["title", "genres", "tags"],
-                        "like": [{ "_index": "movies", "_id": "115879" }],
+                        "like": [{ "_index": "movies", "_id": f"{movie_id}" }],
                         "min_term_freq": 1,
                         "max_query_terms": 25
                     }
