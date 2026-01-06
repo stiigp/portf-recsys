@@ -30,7 +30,19 @@ def get_similar_movies_cbf(movie_id: int, n_movies:int):
         }
     }
 
-    resp = es.search(index="movies", body=body)
+    body_without_imdb = {
+        "size": n_movies,
+        "query": {
+            "more_like_this": {
+                "fields": ["title", "genres", "tags"],
+                "like": [{ "_index": "movies", "_id": f"{movie_id}" }],
+                "min_term_freq": 1,
+                "max_query_terms": 25
+            }
+        }
+    }
+
+    resp = es.search(index="movies", body=body_without_imdb)
 
     return resp
 

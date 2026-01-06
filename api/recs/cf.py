@@ -51,8 +51,8 @@ def create_and_train_model(user_item, alpha: float):
     confidence = (user_item * alpha).astype("float32")
     model = implicit.als.AlternatingLeastSquares(
         factors=64,
-        regularization=0.1,
-        iterations=15,
+        regularization=0.01,
+        iterations=30,
     )
 
     model.fit(confidence)
@@ -66,7 +66,7 @@ def offline_processing():
 
     user_item = make_sparse_matrix(user_id_to_idx, movie_id_to_idx)
 
-    trained_model = create_and_train_model(user_item=user_item, alpha=40.0)
+    trained_model = create_and_train_model(user_item=user_item, alpha=20.0)
 
     print("n_items model:", trained_model.item_factors.shape[0])
     print("n_movies array:", len(movie_ids))

@@ -6,6 +6,7 @@ from recs.cbf import get_similar_movies_cbf, get_cbf_score_of_movie_with_id
 from deps import es
 import recs.cf as cf
 import os
+import numpy as np
 
 MOVIES_INDEX_NAME = "movies"
 
@@ -71,6 +72,9 @@ def train_model():
         detail="als model file not found"
     )
 
+
+# IDEIA NOVA: ao invés de usar simplesmente os filmes sugeridos pelo CF como base, utilizar
+# todos os filmes indicados pelo CF ou pelo CBF, ou seja: utilizar a união dos conjuntos
 @app.get("/hb/{movie_id}")
 def hybrid_rec(movie_id: int):
     model = app.state.als_model
@@ -80,27 +84,35 @@ def hybrid_rec(movie_id: int):
     model_id = mapping[movie_id]
 
     ids, scores = model.similar_items(model_id, N=200)
+    ids = movie_ids[ids]
 
     similar_movies_cbf = get_similar_movies_cbf(movie_id=movie_id, n_movies=200)
     max_cbf_score = similar_movies_cbf['hits']['max_score']
+    similar_movies_cbf_ids = [similar_movie_cbf['_source']['movieId'] for similar_movie_cbf in similar_movies_cbf['hits']['hits']]
+
+    for cbf_id in similar_movies_cbf_ids:
+        if cbf_id not in ids:
+            ids = np.append(ids, cbf_id)
+            scores = np.append(scores, 0.0)
+    
 
     recs = []
 
+    cbf_perc = 0.5
     for item_id, score in zip(ids, scores):
-        es_id = movie_ids[item_id]
 
-        score_cbf_current_movie = get_cbf_score_of_movie_with_id(similar_movies_cbf, es_id)
-        final_score = (score_cbf_current_movie / max_cbf_score) * 80 + score * 20
-
+        score_cbf_current_movie = get_cbf_score_of_movie_with_id(similar_movies_cbf, item_id)
+        final_score = ((score_cbf_current_movie / max_cbf_score) * cbf_perc) + (score * (1-cbf_perc))
+        
         try:
-            doc = es.get(index=MOVIES_INDEX_NAME, id=es_id)
+            doc = es.get(index=MOVIES_INDEX_NAME, id=item_id)
             title = doc["_source"]["title"]
         except Exception as e:
             print("movie not found in ES")
             continue
 
         recs.append(
-            {"movie_id": int(es_id), "title": title, "score": float(final_score)}
+            {"movie_id": int(item_id), "title": title, "score": float(final_score)}
         )
     
     recs = sorted(recs, key=lambda x: x['score'], reverse=True)
