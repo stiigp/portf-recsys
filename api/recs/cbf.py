@@ -44,10 +44,10 @@ def get_similar_movies_cbf(movie_id: int, n_movies:int):
 
     resp = es.search(index="movies", body=body_without_imdb)
 
-    return resp
+    return resp['hits']
 
 def get_cbf_score_of_movie_with_id(similar_movies_cbf: list, es_id: int) -> float:
-    similar_movies_cbf = similar_movies_cbf['hits']['hits']
+    similar_movies_cbf = similar_movies_cbf['hits']
     for movie in similar_movies_cbf:
         if movie['_source']['movieId'] == es_id:
             return movie['_score']
