@@ -1,6 +1,5 @@
 import pandas as pd
 import json
-import requests
 
 OUTPUT_FILE = 'elastic_module/movies_with_tags.ndjson'
 INDEX_NAME = 'movies'
@@ -24,6 +23,13 @@ def put_imdb_rating_into_row(movie_id, row, links):
     rating = links.loc[links['movieId'] == movie_id]['imdbrating'].iloc[0]
     row['imdbrating'] = rating
 
+def put_tmdb_id_into_row(movie_id, row, links):
+    tmdbid = links.loc[links['movieId'] == movie_id]['tmdbId'].iloc[0]
+    try:
+        row['tmdbId'] = int(tmdbid)
+    except:
+        row['tmdbId'] = 0
+
 def transform_genres_into_list_in_row(row):
     row['genres'] = row['genres'].split("|")
 
@@ -34,6 +40,7 @@ def write_action_line_in_output_file(outfile, movie_id):
 def write_item_line_in_output_file(outfile, movie_id, row, tags, links):
     put_tags_into_row(movie_id, row, tags)
     put_imdb_rating_into_row(movie_id, row, links)
+    put_tmdb_id_into_row(movie_id, row, links)
     transform_genres_into_list_in_row(row)
 
     row_dict_version = convert_row_to_dict(row, 6.155158089773474)

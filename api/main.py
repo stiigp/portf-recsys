@@ -104,13 +104,15 @@ def hybrid_rec(movie_id: int):
     titles = es.mget(
         index=MOVIES_INDEX_NAME,
         body={"ids": all_ids},
-        _source=["title"],
+        _source=["title", 'tmdbId'],
     )
 
     titles_by_id = {}
+    tmdbIds_by_id = {}
     for doc in titles["docs"]:
         if doc.get("found"):
             titles_by_id[int(doc["_id"])] = doc["_source"]["title"]
+            tmdbIds_by_id[int(doc["_id"])] = str(doc['_source']["tmdbId"])
 
     recs = []
 
@@ -122,12 +124,13 @@ def hybrid_rec(movie_id: int):
         
         try:
             title = titles_by_id[item_id]
+            tmdbId = tmdbIds_by_id[item_id]
         except Exception as e:
             print("title not found")
             continue
 
         recs.append(
-            {"movie_id": int(item_id), "title": title, "score": float(final_score)}
+            {"movie_id": int(item_id), "title": title, "score": float(final_score), 'tmdb_id': tmdbId}
         )
     
     recs = sorted(recs, key=lambda x: x['score'], reverse=True)
