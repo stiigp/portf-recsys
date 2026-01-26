@@ -42,6 +42,20 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        - VITE_API_URL=http://backend:8000
+
+    container_name: frontend
+  
+    depends_on:
+      api:
+        condition: service_started
+        
+    ports:
+      - "3000:80"
 
 volumes:
   es-data-es01:
