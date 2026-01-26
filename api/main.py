@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from elastic_module.dump_movies_into_es import dump_movies_on_startup
 from postgres_module.dump_ratings_into_pg import dump_ratings_on_startup
@@ -23,6 +24,18 @@ async def lifespan(app: FastAPI):
     # aqui fica o código pro shutdown da API
 
 app = FastAPI(lifespan=lifespan)
+
+origins = [
+    "http://localhost:3000",      # Frontend rodando local
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,        # Permite essas origens
+    allow_credentials=True,
+    allow_methods=["*"],          # Permite todos os métodos (GET, POST, etc.)
+    allow_headers=["*"],          # Permite todos os headers
+)
 
 @app.get("/")
 def read_root():
@@ -152,4 +165,6 @@ def autocomplete_search(query: str):
 
     res = es.search(index=MOVIES_INDEX_NAME, body=body)
 
-    return res
+    data = [{'id': movie['_id'], 'title': movie['_source']['title'][:-7], 'tmdbId': movie['_source']['tmdbId'], 'year': movie['_source']['title'][-5:-1]} for movie in res['hits']['hits']]
+
+    return data

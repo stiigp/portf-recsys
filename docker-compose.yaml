@@ -13,7 +13,7 @@ services:
   
   api:
     build: ./api
-    container_name: fastapi-app
+    container_name: api
     depends_on:
       es01:
         condition: service_started
@@ -46,14 +46,11 @@ services:
     build:
       context: ./frontend
       args:
-        - VITE_API_URL=http://backend:8000
-
+        - API_URL=http://api:8000
     container_name: frontend
-  
     depends_on:
       api:
         condition: service_started
-        
     ports:
       - "3000:80"
 
