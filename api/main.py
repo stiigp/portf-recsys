@@ -61,7 +61,6 @@ def cf_rec(movie_id: int):
 
     return {"recommendations": recs}
 
-
 @app.get("/cf/check-model")
 def train_model():
     if os.path.exists("recs/als_model.pkl"):
@@ -136,3 +135,21 @@ def hybrid_rec(movie_id: int):
     recs = sorted(recs, key=lambda x: x['score'], reverse=True)
 
     return {"recommendations": recs}
+
+@app.get("/autocomplete/{query}")
+def autocomplete_search(query: str):
+    body = {
+        "size": 10,
+        "_source": ["title", "tmdbId"],
+        "query": {
+            "match": {
+                "title": {
+                    "query": query
+                }
+            }
+        }
+    }
+
+    res = es.search(index=MOVIES_INDEX_NAME, body=body)
+
+    return res
