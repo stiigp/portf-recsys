@@ -1,0 +1,16 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copia apenas package.json primeiro
+COPY package*.json ./
+
+# Instala dependências
+RUN npm install
+
+# NÃO copiamos o código aqui com COPY . . 
+# Vamos usar VOLUMES no docker-compose para isso
+
+EXPOSE 5173
+
+CMD ["npm", "run", "dev"]

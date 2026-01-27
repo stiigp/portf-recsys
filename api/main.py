@@ -153,7 +153,7 @@ def hybrid_rec(movie_id: int):
 def autocomplete_search(query: str):
     body = {
         "size": 10,
-        "_source": ["title", "tmdbId"],
+        "_source": ["title", "tmdbId", "poster_path"],
         "query": {
             "match": {
                 "title": {
@@ -165,6 +165,6 @@ def autocomplete_search(query: str):
 
     res = es.search(index=MOVIES_INDEX_NAME, body=body)
 
-    data = [{'id': movie['_id'], 'title': movie['_source']['title'][:-7], 'tmdbId': movie['_source']['tmdbId'], 'year': movie['_source']['title'][-5:-1]} for movie in res['hits']['hits']]
+    data = [{'id': movie['_id'], 'title': movie['_source']['title'][:-7], 'tmdbId': movie['_source'].get('tmdbId'), 'year': movie['_source']['title'][-5:-1], 'poster_path': movie['_source'].get('poster_path')} for movie in res['hits']['hits']]
 
     return data

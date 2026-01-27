@@ -1,12 +1,12 @@
 <template>
-  <div class="relative w-full max-w-lg mx-auto">
+  <div class="relative w-full max-w-3xl mx-auto">
     <!-- Barra de Pesquisa -->
     <div class="relative">
       <input
         type="text"
         v-model="query"
         @input="handleInput"
-        placeholder="Buscar filmes..."
+        placeholder="Search movies..."
         class="w-full px-4 py-3 text-gray-700 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors duration-200"
       />
       
@@ -30,6 +30,12 @@
         @click="selectMovie(movie)"
         class="px-4 py-2 hover:bg-blue-50 cursor-pointer flex justify-between items-center transition-colors duration-150"
       >
+        <img
+          :src="posterUrl(movie)"
+          :alt="`Poster de ${movie.title}`"
+          class="w-14 h-20 object-cover rounded bg-gray-200 flex-shrink-0"
+          loading="lazy"
+        />
         <span class="text-sm font-medium text-gray-800">{{ movie.title }}</span>
         <span v-if="movie.year" class="text-xs text-gray-500">({{ movie.year }})</span>
       </li>
@@ -40,7 +46,7 @@
       v-if="query.length >= 3 && suggestions.length === 0 && !loading && hasSearched"
       class="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-3 text-center text-gray-500 text-sm"
     >
-      Nenhum filme encontrado.
+      No movies found.
     </div>
   </div>
 </template>
@@ -58,6 +64,9 @@ let debounceTimeout = null
 
 // URL da API (ajuste conforme necessário)
 const API_URL = import.meta.env.API_URL || 'http://localhost:8000'
+
+const posterUrl = (movie) =>
+  movie.poster_path ? `https://image.tmdb.org/t/p/w92${movie.poster_path}` : null
 
 // Função de busca
 const fetchSuggestions = async (searchTerm) => {

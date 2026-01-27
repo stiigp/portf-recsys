@@ -45,6 +45,8 @@ services:
   frontend:
     build:
       context: ./frontend
+      # CHANGE INTO NORMAL DOCKERFILE BEFORE GOING PROD
+      # dockerfile: Dockerfile.dev
       args:
         - API_URL=http://api:8000
     container_name: frontend
@@ -53,6 +55,12 @@ services:
         condition: service_started
     ports:
       - "3000:80"
+      - "3001:5173"
+
+    # DELETE THESE VOLUMES BEFORE GOING PROD
+    # volumes:
+    #   - ./frontend:/app
+    #   - /app/node_modules
 
 volumes:
   es-data-es01:

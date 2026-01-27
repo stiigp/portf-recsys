@@ -1,10 +1,17 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
 import SearchBar from './components/SearchBar.vue'
 </script>
 
 <template>
-  <SearchBar/>
+  <div class="min-h-screen pt-10 px-4">
+    
+    <h1 class="text-3xl font-bold text-center mb-6">
+      Movie Search
+    </h1>
+
+    <SearchBar />
+
+  </div>
 </template>
 
 <style scoped>

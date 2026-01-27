@@ -1,8 +1,15 @@
 import pandas as pd
 import json
+import requests
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
+
+TMDB_API_KEY = os.getenv("TMDB_API_KEY")
 OUTPUT_FILE = 'elastic_module/movies_with_tags.ndjson'
 INDEX_NAME = 'movies'
+
 
 def read_movies_and_tags():
     return pd.read_csv("dataset/movies_clean.csv"), pd.read_csv("dataset/tags.csv")
@@ -23,12 +30,26 @@ def put_imdb_rating_into_row(movie_id, row, links):
     rating = links.loc[links['movieId'] == movie_id]['imdbrating'].iloc[0]
     row['imdbrating'] = rating
 
-def put_tmdb_id_into_row(movie_id, row, links):
+def put_tmdb_id_and_poster_path_into_row(movie_id, row, links):
     tmdbid = links.loc[links['movieId'] == movie_id]['tmdbId'].iloc[0]
+    url = f"https://api.themoviedb.org/3/movie/{tmdbid}"
+    headers = {
+        "accept": "application/json",
+        "Authorization": f"Bearer {TMDB_API_KEY}"
+    }
+
     try:
-        row['tmdbId'] = int(tmdbid)
-    except:
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            row['tmdbId'] = tmdbid
+
+            data = response.json()
+            row['poster_path'] = data.get("poster_path")
+
+    except Exception as e:
+        print(f"Erro ao buscar {tmdbid}: {e}")
         row['tmdbId'] = 0
+        
 
 def transform_genres_into_list_in_row(row):
     row['genres'] = row['genres'].split("|")
@@ -40,7 +61,7 @@ def write_action_line_in_output_file(outfile, movie_id):
 def write_item_line_in_output_file(outfile, movie_id, row, tags, links):
     put_tags_into_row(movie_id, row, tags)
     put_imdb_rating_into_row(movie_id, row, links)
-    put_tmdb_id_into_row(movie_id, row, links)
+    put_tmdb_id_and_poster_path_into_row(movie_id, row, links)
     transform_genres_into_list_in_row(row)
 
     row_dict_version = convert_row_to_dict(row, 6.155158089773474)
