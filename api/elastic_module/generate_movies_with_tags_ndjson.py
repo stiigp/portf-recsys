@@ -83,4 +83,5 @@ def generate_complete_movies_ndjson():
             write_pair_of_lines_in_output_file(outfile, movie_id, row, tags, links)
 
 if __name__ == "__main__":
-    generate_complete_movies_ndjson()
+    # generate_complete_movies_ndjson()
+    print(TMDB_API_KEY)

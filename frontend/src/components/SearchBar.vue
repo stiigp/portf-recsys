@@ -53,22 +53,21 @@
 
 <script setup>
 import { ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
-// Estado
 const query = ref('')
 const suggestions = ref([])
 const loading = ref(false)
 const showDropdown = ref(false)
-const hasSearched = ref(false) // Para controlar a msg de "vazio" só após buscar
+const hasSearched = ref(false)
+const router = useRouter()
 let debounceTimeout = null
 
-// URL da API (ajuste conforme necessário)
 const API_URL = import.meta.env.API_URL || 'http://localhost:8000'
 
 const posterUrl = (movie) =>
   movie.poster_path ? `https://image.tmdb.org/t/p/w92${movie.poster_path}` : null
 
-// Função de busca
 const fetchSuggestions = async (searchTerm) => {
   if (searchTerm.length < 3) {
     suggestions.value = []
@@ -97,7 +96,6 @@ const fetchSuggestions = async (searchTerm) => {
   }
 }
 
-// Lógica de Debounce
 const handleInput = () => {
   // Limpa timeout anterior se o usuário continuar digitando
   if (debounceTimeout) clearTimeout(debounceTimeout)
@@ -117,18 +115,16 @@ const handleInput = () => {
   }, 200)
 }
 
-// Ação ao selecionar um filme
 const selectMovie = (movie) => {
   query.value = movie.title
-  showDropdown.value = false // Esconde o dropdown
-  // Aqui você pode emitir um evento para o componente pai ou navegar para detalhes
+  showDropdown.value = false
+  
+  router.push({ 
+    name: 'movie-detail', 
+    params: { tmdbId: movie.tmdbId }
+  })
+
   console.log('Filme selecionado:', movie)
 }
 
-// Fecha dropdown se clicar fora (opcional simples)
-// Para uma solução robusta, use @vueuse/core onClickOutside
 </script>
-
-<style scoped>
-/* Estilos extra se não usar Tailwind completo */
-</style>
