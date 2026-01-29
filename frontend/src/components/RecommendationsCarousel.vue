@@ -79,9 +79,11 @@ const fetchRecommendations = async (id) => {
 
 const posterUrl = (path) => path ? `https://image.tmdb.org/t/p/w342${path}` : 'https://via.placeholder.com/342x513?text=Sem+Imagem'
 
-const goToMovie = (id) => {  
+const goToMovie = (id) => {
+  recommendations.value = []
   router.push(`/movie/${id}`)
   window.scrollTo({ top: 0, behavior: 'smooth' })
+  scrollContainer.value.scrollTo({left: 0, behavior: 'smooth'})
 }
 
 const scrollRight = () => {
