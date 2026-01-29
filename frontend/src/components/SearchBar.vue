@@ -26,7 +26,7 @@
     >
       <li
         v-for="movie in suggestions"
-        :key="movie.tmdbId || movie.id"
+        :key="movie.id"
         @click="selectMovie(movie)"
         class="px-4 py-2 hover:bg-blue-50 cursor-pointer flex justify-between items-center transition-colors duration-150"
       >
@@ -79,7 +79,6 @@ const fetchSuggestions = async (searchTerm) => {
   hasSearched.value = true
 
   try {
-    // encodeURIComponent é importante para tratar espaços e caracteres especiais
     const response = await fetch(`${API_URL}/autocomplete/${encodeURIComponent(searchTerm)}`)
     
     if (!response.ok) throw new Error('Erro na API')
@@ -120,11 +119,9 @@ const selectMovie = (movie) => {
   showDropdown.value = false
   
   router.push({ 
-    name: 'movie-detail', 
-    params: { tmdbId: movie.tmdbId }
+    name: 'movie-detail',
+    params: { movieId: movie.id }
   })
-
-  console.log('Filme selecionado:', movie)
 }
 
 </script>

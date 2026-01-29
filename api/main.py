@@ -84,8 +84,8 @@ def train_model():
         detail="als model file not found"
     )
 
-@app.get("/hb/{movie_id}")
-def hybrid_rec(movie_id: int):
+@app.get("/hb/{movie_id}/{n_recs}")
+def hybrid_rec(movie_id: int, n_recs: int):
     model = app.state.als_model
     mapping = app.state.movie_mapping
     movie_ids = app.state.movie_ids
@@ -116,15 +116,17 @@ def hybrid_rec(movie_id: int):
     titles = es.mget(
         index=MOVIES_INDEX_NAME,
         body={"ids": all_ids},
-        _source=["title", 'tmdbId'],
+        _source=["title", 'tmdbId', 'poster_path'],
     )
 
     titles_by_id = {}
     tmdbIds_by_id = {}
+    poster_paths_by_id = {}
     for doc in titles["docs"]:
         if doc.get("found"):
             titles_by_id[int(doc["_id"])] = doc["_source"]["title"]
-            tmdbIds_by_id[int(doc["_id"])] = str(doc['_source']["tmdbId"])
+            tmdbIds_by_id[int(doc["_id"])] = str(doc['_source'].get("tmdbId"))
+            poster_paths_by_id[int(doc["_id"])] = doc['_source'].get("poster_path")
 
     recs = []
 
@@ -137,17 +139,19 @@ def hybrid_rec(movie_id: int):
         try:
             title = titles_by_id[item_id]
             tmdbId = tmdbIds_by_id[item_id]
+            poster_path = poster_paths_by_id[item_id]
         except Exception as e:
             print("title not found")
             continue
 
         recs.append(
-            {"movie_id": int(item_id), "title": title, "score": float(final_score), 'tmdb_id': tmdbId}
+            {"movie_id": int(item_id), "title": title, "score": float(final_score), 'tmdb_id': tmdbId, 'poster_path': poster_path}
         )
+    
     
     recs = sorted(recs, key=lambda x: x['score'], reverse=True)
 
-    return {"recommendations": recs}
+    return {"recommendations": recs[:n_recs]}
 
 @app.get("/autocomplete/{query}")
 def autocomplete_search(query: str):
@@ -168,3 +172,12 @@ def autocomplete_search(query: str):
     data = [{'id': movie['_id'], 'title': movie['_source']['title'][:-7], 'tmdbId': movie['_source'].get('tmdbId'), 'year': movie['_source']['title'][-5:-1], 'poster_path': movie['_source'].get('poster_path')} for movie in res['hits']['hits']]
 
     return data
+
+@app.get("/movie/{movie_id}")
+def get_movie(movie_id: int):
+    res = es.get(
+        index=MOVIES_INDEX_NAME,
+        id=movie_id
+    )
+
+    return res['_source']

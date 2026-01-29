@@ -28,10 +28,7 @@
       </div>
     </div>
 
-    <div class="mt-12">
-      <h2 class="text-2xl font-bold mb-4">Recommendations</h2>
-      <p class="text-gray-500">Coming soon...</p>
-    </div>
+    <RecommendationsView :movieId="route.params.movieId"/>
 
   </div>
 </template>
@@ -39,6 +36,7 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import RecommendationsView from '../components/RecommendationsCarousel.vue';
 import axios from 'axios';
 
 const route = useRoute()
@@ -46,23 +44,27 @@ const movie = ref(null)
 const loading = ref(true)
 const error = ref(null)
 
-// tem que pegar do .env
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3'
+const API_BASE_URL = import.meta.env.VITE_API_URL
 
 const posterUrl = (path) => path ? `https://image.tmdb.org/t/p/w500${path}` : 'https://via.placeholder.com/300x450'
 
 const fetchMovie = async (id) => {
   loading.value = true
   error.value = null
-  
+
   try {
+    const res_internal_api = await axios.get(`${API_BASE_URL}/movie/${id}`)
+    
+    const tmdbId = res_internal_api.data.tmdbId
+
     const header = {
       accept: "application/json",
       Authorization: `Bearer ${TMDB_API_KEY}`
     }
 
-    const res = await axios.get(`${TMDB_BASE_URL}/movie/${id}`, { headers: header })
+    const res = await axios.get(`${TMDB_BASE_URL}/movie/${tmdbId}`, { headers: header })
     
     movie.value = res.data
   } catch (err) {
@@ -78,12 +80,11 @@ const fetchMovie = async (id) => {
   }
 }
 
-
 onMounted(() => {
-  fetchMovie(route.params.tmdbId)
+  fetchMovie(route.params.movieId)
 })
 
-watch(() => route.params.tmdbId, (newId) => {
+watch(() => route.params.movieId, (newId) => {
   if (newId) fetchMovie(newId)
 })
 </script>
