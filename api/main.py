@@ -132,26 +132,26 @@ def hybrid_rec(movie_id: int, n_recs: int):
 
     cbf_perc = 0.4
     for item_id, score in zip(all_ids, scores):
+        if item_id != movie_id:
+            score_cbf_current_movie = get_cbf_score_of_movie_with_id(similar_movies_cbf, item_id)
+            final_score = ((score_cbf_current_movie / max_cbf_score) * cbf_perc) + (score * (1-cbf_perc))
+            
+            try:
+                title = titles_by_id[item_id]
+                tmdbId = tmdbIds_by_id[item_id]
+                poster_path = poster_paths_by_id[item_id]
+            except Exception as e:
+                print("title not found")
+                continue
 
-        score_cbf_current_movie = get_cbf_score_of_movie_with_id(similar_movies_cbf, item_id)
-        final_score = ((score_cbf_current_movie / max_cbf_score) * cbf_perc) + (score * (1-cbf_perc))
-        
-        try:
-            title = titles_by_id[item_id]
-            tmdbId = tmdbIds_by_id[item_id]
-            poster_path = poster_paths_by_id[item_id]
-        except Exception as e:
-            print("title not found")
-            continue
-
-        recs.append(
-            {"movie_id": int(item_id), "title": title, "score": float(final_score), 'tmdb_id': tmdbId, 'poster_path': poster_path}
-        )
+            recs.append(
+                {"movie_id": int(item_id), "title": title, "score": float(final_score), 'tmdb_id': tmdbId, 'poster_path': poster_path}
+            )
     
     
     recs = sorted(recs, key=lambda x: x['score'], reverse=True)
 
-    return {"recommendations": recs[:n_recs]}
+    return recs[:n_recs]
 
 @app.get("/autocomplete/{query}")
 def autocomplete_search(query: str):

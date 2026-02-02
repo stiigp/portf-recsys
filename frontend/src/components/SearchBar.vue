@@ -1,6 +1,5 @@
 <template>
   <div class="relative w-full max-w-3xl mx-auto">
-    <!-- Barra de Pesquisa -->
     <div class="relative">
       <input
         type="text"
@@ -10,7 +9,6 @@
         class="w-full px-4 py-3 text-gray-700 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors duration-200"
       />
       
-      <!-- Ícone de Loading (opcional) -->
       <div v-if="loading" class="absolute right-3 top-3">
         <svg class="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -19,7 +17,6 @@
       </div>
     </div>
 
-    <!-- Dropdown de Autocomplete -->
     <ul
       v-if="suggestions.length > 0 && showDropdown"
       class="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto"
@@ -41,7 +38,6 @@
       </li>
     </ul>
 
-    <!-- Mensagem de "Nenhum resultado" (opcional) -->
     <div 
       v-if="query.length >= 3 && suggestions.length === 0 && !loading && hasSearched"
       class="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-3 text-center text-gray-500 text-sm"
@@ -96,10 +92,8 @@ const fetchSuggestions = async (searchTerm) => {
 }
 
 const handleInput = () => {
-  // Limpa timeout anterior se o usuário continuar digitando
   if (debounceTimeout) clearTimeout(debounceTimeout)
   
-  // Se limpar o input, reseta tudo
   if (query.value.length < 3) {
     suggestions.value = []
     showDropdown.value = false
@@ -108,7 +102,6 @@ const handleInput = () => {
     return
   }
 
-  // Agenda nova busca para 200ms
   debounceTimeout = setTimeout(() => {
     fetchSuggestions(query.value)
   }, 200)

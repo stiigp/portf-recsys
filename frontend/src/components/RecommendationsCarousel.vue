@@ -71,7 +71,7 @@ const fetchRecommendations = async (id) => {
   try {
     const res = await axios.get(`${API_BASE_URL}/hb/${id}/10`)
 
-    recommendations.value = res.data.recommendations
+    recommendations.value = res.data
   } catch (error) {
     console.error('Erro ao buscar recomendações:', error)
   }
