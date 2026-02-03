@@ -159,10 +159,11 @@ def autocomplete_search(query: str):
         "size": 10,
         "_source": ["title", "tmdbId", "poster_path"],
         "query": {
-            "match": {
-                "title": {
-                    "query": query
-                }
+            "multi_match": {
+                "query": query,
+                "fields": ["title", "genres", "tags"],
+                "type": "bool_prefix", 
+                "fuzziness": "AUTO"
             }
         }
     }
