@@ -46,8 +46,6 @@ services:
   frontend:
     build:
       context: ./frontend
-      # CHANGE INTO NORMAL DOCKERFILE BEFORE GOING PROD
-      # dockerfile: Dockerfile.dev
       args:
         - VITE_API_URL=http://localhost:8000
     container_name: frontend
@@ -56,12 +54,20 @@ services:
         condition: service_started
     ports:
       - "3000:80"
-    #   - "3001:5173"
+    labels:
+      - "traefik.enable=true"
 
-    # # DELETE THESE VOLUMES BEFORE GOING PROD
-    # volumes:
-    #   - ./frontend:/app
-    #   - /app/node_modules
+      # Roteador: host + path
+      - "traefik.http.routers.frontend.rule=Host(`panucci.cloud`) && PathPrefix(`/recsys`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
+
+      # Middleware pra remover o prefixo
+      - "traefik.http.routers.frontend.middlewares=frontend-stripprefix"
+      - "traefik.http.middlewares.frontend-stripprefix.stripprefix.prefixes=/recsys"
+
+      # Serviço apontando pra porta interna do Vue
+      - "traefik.http.services.frontend.loadbalancer.server.port=3000"
 
 volumes:
   es-data-es01:
