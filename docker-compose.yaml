@@ -58,13 +58,9 @@ services:
       - "traefik.enable=true"
 
       # Roteador: host + path
-      - "traefik.http.routers.frontend.rule=Host(`panucci.cloud`) && PathPrefix(`/recsys`)"
+      - "traefik.http.routers.frontend.rule=Host(`recsys.panucci.cloud`)"
       - "traefik.http.routers.frontend.entrypoints=websecure"
       - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
-
-      # Middleware pra remover o prefixo
-      - "traefik.http.routers.frontend.middlewares=frontend-stripprefix"
-      - "traefik.http.middlewares.frontend-stripprefix.stripprefix.prefixes=/recsys"
 
       # Serviço apontando pra porta interna do Vue
       - "traefik.http.services.frontend.loadbalancer.server.port=3000"
