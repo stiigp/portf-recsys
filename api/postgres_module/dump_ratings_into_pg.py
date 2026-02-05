@@ -1,32 +1,37 @@
-from deps import get_db_context
-from postgres_module.entities.rating import Base, Rating
+from postgres_module.entities.rating import Base
 from postgres_module.db import engine
+from sqlalchemy import text
+import io
 
 import pandas as pd
 
 async def dump_ratings_on_startup():
-    # isso aqui cria as tabelas vinculadas à classe Base se elas não existirem
     Base.metadata.create_all(bind=engine)
-    with get_db_context() as con:
-        has_data = con.query(Rating).first() is not None
-        if not has_data:
-            ratings = pd.read_csv("dataset/ratings_clean.csv")
+    
+    csv_path = "dataset/ratings_clean.csv"
+    chunk_size = 500000
 
-            batch = []
-            for row in ratings.itertuples():
-                batch.append(
-                    Rating(
-                        userId=int(row.userId),
-                        movieId=int(row.movieId),
-                        rating=float(row.rating)
-                    )
-                )
+    with engine.connect() as conn:
+        has_data = conn.execute(text("SELECT 1 FROM ratings LIMIT 1")).fetchone()
+        if has_data:
+            print("DB already populated")
+            return
+        
+        print("Starting dump via COPY")
+        
+        for chunk in pd.read_csv(csv_path, chunksize=chunk_size):
 
-                if len(batch) >= 200:
-                    con.bulk_save_objects(batch)
-                    con.commit()
-                    batch.clear()
+            del chunk['timestamp']
+
+            buffer = io.StringIO()
+            chunk.to_csv(buffer, index=False, header=False)
+            buffer.seek(0)
             
-            if len(batch) > 0:
-                con.bulk_save_objects(batch)
-                con.commit()
+            raw_conn = conn.connection.cursor()
+            raw_conn.copy_from(buffer, 'ratings', sep=',', columns=['userId', 'movieId', 'rating'])
+            
+            conn.commit()
+            print(f"Inserted more {chunk_size} registers...")
+
+    print("Dump finished successfully!")
+    
