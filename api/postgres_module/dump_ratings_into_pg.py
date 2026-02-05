@@ -22,7 +22,7 @@ async def dump_ratings_on_startup():
                     )
                 )
 
-                if len(batch) >= 1000:
+                if len(batch) >= 200:
                     con.bulk_save_objects(batch)
                     con.commit()
                     batch.clear()
