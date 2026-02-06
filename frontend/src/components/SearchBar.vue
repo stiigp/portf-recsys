@@ -59,7 +59,7 @@ const hasSearched = ref(false)
 const router = useRouter()
 let debounceTimeout = null
 
-const API_URL = import.meta.env.API_URL || 'http://localhost:8000'
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 const posterUrl = (movie) =>
   movie.poster_path ? `https://image.tmdb.org/t/p/w92${movie.poster_path}` : null
@@ -70,6 +70,8 @@ const fetchSuggestions = async (searchTerm) => {
     showDropdown.value = false
     return
   }
+  
+  console.log(API_URL);
 
   loading.value = true
   hasSearched.value = true

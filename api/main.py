@@ -27,6 +27,7 @@ app = FastAPI(lifespan=lifespan)
 
 origins = [
     "http://localhost:3000",      # Frontend rodando local
+    "https://recsys.panucci.cloud"
 ]
 
 app.add_middleware(
