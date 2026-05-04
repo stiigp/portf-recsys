@@ -6,8 +6,8 @@ services:
       - discovery.type=single-node
       - ES_JAVA_OPTS=-Xms1g -Xmx1g
     ports:
-      - "9200:9200"
-      - "9302:9302"
+      - "127.0.0.1:9200:9200"
+      - "127.0.0.1:9302:9302"
     volumes:
       - es-data-es01:/usr/share/elasticsearch/data
     healthcheck:
