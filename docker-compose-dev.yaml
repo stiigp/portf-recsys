@@ -32,20 +32,7 @@ services:
     volumes:
       - models:/api/models
     networks:
-      - web
       - default
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.api.rule=Host(`api.panucci.cloud`)"
-      - "traefik.http.routers.api.entrypoints=websecure"
-      - "traefik.http.routers.api.tls.certresolver=lets-encrypt"
-      - "traefik.docker.network=web"
-      - "traefik.http.services.api.loadbalancer.server.port=8000"
-
-      # ratelimits to avoid ddos since api is public
-      - "traefik.http.middlewares.api-ratelimit.ratelimit.average=30"
-      - "traefik.http.middlewares.api-ratelimit.ratelimit.burst=50"
-      - "traefik.http.routers.api.middlewares=api-ratelimit"
   
   db:
     image: postgres:16
@@ -76,19 +63,7 @@ services:
     ports:
       - "3000:80"
     networks:
-      - web
       - default
-    labels:
-      - "traefik.enable=true"
-
-      # Roteador: host + path
-      - "traefik.http.routers.frontend.rule=Host(`recsys.panucci.cloud`)"
-      - "traefik.http.routers.frontend.entrypoints=websecure"
-      - "traefik.http.routers.frontend.tls.certresolver=lets-encrypt"
-      - "traefik.docker.network=web"
-
-      # Serviço apontando pra porta interna do Vue
-      - "traefik.http.services.frontend.loadbalancer.server.port=80"
 
 
 volumes:
@@ -97,7 +72,5 @@ volumes:
   models:
 
 networks:
-  web:
-    external: true    
   default:
     driver: bridge
