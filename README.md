@@ -337,10 +337,7 @@ There is currently no automated recommendation evaluation or populated backend t
 This is a portfolio application demonstrating hybrid movie discovery, from rating ingestion through a usable web interface.
 
 - Recommendations depend on a selected movie and an offline model. There are no user accounts, online learning, or session-based personalization.
-- Hybrid requests require the selected movie to exist in the ALS mapping; there is no content-only fallback for an unseen item.
-- The current hybrid implementation assumes content matches have a nonzero maximum score and add at least one candidate beyond the ALS list. Empty content results or a fully overlapping candidate set need additional handling.
-- Ingestion and training run during API startup. Model refresh, dataset versioning, and evaluation are manual.
-- The prepared metadata includes an `imdbrating` field derived from a smoothed MovieLens average; the active content query does not use it for ranking.
+- The movies are limited to the original movies on the Movielens dataset, there is no streamlined data ingestion for movies or ratings, although that is one of the future features to the app
 
 ## License and Data Attribution
 
